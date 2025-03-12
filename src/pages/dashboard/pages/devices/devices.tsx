@@ -4,6 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { DataTable } from "primereact/Datatable";
 import { Column } from "primereact/column";
 import "./device.css";
+import { useNavigate } from "react-router-dom";
 
 export default function DevicesComponent() {
   const [filter, setFilter] = useState("");
@@ -120,14 +121,22 @@ export default function DevicesComponent() {
     },
   ];
 
+  const navigate = useNavigate();
+
   return (
     <>
-      <div className="p-6 bg-gray-100 min-h-screen">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold mb-4">
-            Filipe - Lista de Dispositivos
-          </h1>
+      <div className="p-6 bg-gray-100 min-h-screen container mx-auto px-[3%]">
+        <div className="flex md:items-center justify-between mt-8 flex-col md:flex-row mb-6">
+          <div className="mb-4">
+            <h1 className="text-2xl font-semibold">
+              Filipe - Lista de Dispositivos
+            </h1>
+            <p>Gerencie todas os dispositivos aqui</p>
+          </div>
           <Button
+            onClick={() => {
+              navigate("/new");
+            }}
             label="Adicionar Dispositivo"
             icon="pi pi-plus"
             className="p-button-success"
@@ -154,13 +163,15 @@ export default function DevicesComponent() {
         >
           <Column field="nome" header="Nome" sortable></Column>
           <Column field="email" header="E-mail" sortable></Column>
-          <Column field="senha" header="Senha" sortable></Column>
+          {/* <Column field="senha" header="Senha" sortable></Column> */}
           <Column field="imei" header="IMEI" sortable></Column>
           <Column field="serial" header="Serial" sortable></Column>
-          <Column field="codigo" header="Código" sortable></Column>
+          {/* <Column field="codigo" header="Código" sortable></Column> */}
           <Column field="numero" header="Número" sortable></Column>
           <Column field="modelo" header="Modelo" sortable></Column>
-          <Column field="descricao" header="Descrição" sortable></Column>
+          {/* <Column field="descricao" header="Descrição" sortable></Column> */}
+          <Column field="actions" header="Acções">
+          </Column>
         </DataTable>
       </div>
     </>

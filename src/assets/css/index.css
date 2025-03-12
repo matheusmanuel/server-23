@@ -1,0 +1,12 @@
+.p-button{
+    height: 48px !important;
+    border-radius: 10px;
+}
+.p-button-label{
+    font-weight: 500;
+    font-size: 16px;
+}
+.p-inputtext{
+    height: 48px !important;
+    border-radius: 10px;
+}
