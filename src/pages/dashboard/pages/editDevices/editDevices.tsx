@@ -1,12 +1,13 @@
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import "./newDevices.css";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import "./editDevices.css";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Device from "../../../../interfaces/device";
 
-export default function NewDevices() {
+export default function EditDevices() {
+  const { deviceId } = useParams();
   const navigate = useNavigate();
   const [formDevice, setFormDevice] = useState<Device>({
     name: "",
@@ -30,14 +31,26 @@ export default function NewDevices() {
   };
 
   const handleSubmit = async () => {
-    console.log("devices: ", formDevice);
-
-    window.electron.createDevices(formDevice).then((response)=>{
-      goHome();
-    }).catch((error: Error)=>{
-      console.error("Erro ao criar um dispositivo: ", error);
-    })    
+    window.electron
+      .editDevice(formDevice)
+      .then((response) => {
+        goHome();
+      })
+      .catch((error: Error) => {
+        console.error("Erro ao criar um dispositivo: ", error);
+      });
   };
+
+  useEffect(() => {
+    window.electron
+      .getDevice(deviceId)
+      .then((response) => {
+        setFormDevice(response);
+      })
+      .catch((error: Error) => {
+        console.error("Erro ao buscar um dispositivo: ", error);
+      });
+  }, [deviceId]);
 
   return (
     <main className="container mx-auto px-[3%] mt-8">
@@ -45,8 +58,10 @@ export default function NewDevices() {
         <i className="pi pi-chevron-left" />
       </div>
 
-      <h2 className="text-2xl font-semibold">Adicionar novo Dispositivo</h2>
-      <p className="text-sm text-neutral-700">Adicionar um novo Dispositivo</p>
+      <h2 className="text-2xl font-semibold">
+        Editar Dispositivo: {formDevice.model}
+      </h2>
+      <p className="text-sm text-neutral-700">Editar o {formDevice.model} do {formDevice.name}</p>
 
       <div className="mt-3 space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -65,7 +80,7 @@ export default function NewDevices() {
               name="name"
               value={formDevice.name}
               onChange={handleChange}
-              placeholder="Jhon doe"
+              placeholder="Matheus Manuel"
             />
           </div>
 
@@ -84,7 +99,7 @@ export default function NewDevices() {
               onChange={handleChange}
               value={formDevice.email}
               required
-              placeholder="example@icloud.com"
+              placeholder="matheusmanuel@gmail.com"
             />
           </div>
         </div>
@@ -125,7 +140,7 @@ export default function NewDevices() {
               onChange={handleChange}
               value={formDevice.imei}
               maxLength={16}
-              placeholder="0000000000000"
+              placeholder="3548373738397466"
             />
           </div>
         </div>
@@ -147,7 +162,7 @@ export default function NewDevices() {
               name="serial"
               onChange={handleChange}
               value={formDevice.serial}
-              placeholder="XXXXXXXX"
+              placeholder="NHDKHPMDB"
             />
           </div>
 

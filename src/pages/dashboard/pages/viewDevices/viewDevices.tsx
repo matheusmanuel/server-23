@@ -1,12 +1,14 @@
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import "./newDevices.css";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import "./viewDevices.css";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Device from "../../../../interfaces/device";
 
-export default function NewDevices() {
+export default function ViewDevices() {
+  const { deviceId } = useParams();
+
   const navigate = useNavigate();
   const [formDevice, setFormDevice] = useState<Device>({
     name: "",
@@ -20,24 +22,21 @@ export default function NewDevices() {
     model: "",
   });
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormDevice({ ...formDevice, [name]: value });
-  };
-
   const goHome = () => {
     navigate("/");
   };
 
-  const handleSubmit = async () => {
-    console.log("devices: ", formDevice);
-
-    window.electron.createDevices(formDevice).then((response)=>{
-      goHome();
-    }).catch((error: Error)=>{
-      console.error("Erro ao criar um dispositivo: ", error);
-    })    
-  };
+  useEffect(() => {
+    window.electron
+      .getDevice(deviceId)
+      .then((response: any) => {
+        setFormDevice(response);
+        console.log(response);
+      })
+      .catch((error: Error) => {
+        console.error("houve um erro ao buscar os dados dos device: ", error);
+      });
+  }, [deviceId]);
 
   return (
     <main className="container mx-auto px-[3%] mt-8">
@@ -45,8 +44,11 @@ export default function NewDevices() {
         <i className="pi pi-chevron-left" />
       </div>
 
-      <h2 className="text-2xl font-semibold">Adicionar novo Dispositivo</h2>
-      <p className="text-sm text-neutral-700">Adicionar um novo Dispositivo</p>
+      <h2 className="text-2xl font-semibold">Informações do dispositivo do: {formDevice.name} </h2>
+      <p className="text-sm text-neutral-700 mt-2">
+        Visualize as informações do <strong>{formDevice.model}</strong> do{" "}
+        <strong>{formDevice.name}</strong>
+      </p>
 
       <div className="mt-3 space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,8 +66,7 @@ export default function NewDevices() {
               required
               name="name"
               value={formDevice.name}
-              onChange={handleChange}
-              placeholder="Jhon doe"
+              placeholder="Matheus Manuel"
             />
           </div>
 
@@ -81,10 +82,9 @@ export default function NewDevices() {
               className="w-full mb-2"
               type="email"
               name="email"
-              onChange={handleChange}
               value={formDevice.email}
               required
-              placeholder="example@icloud.com"
+              placeholder="matheusmanuel@gmail.com"
             />
           </div>
         </div>
@@ -104,7 +104,6 @@ export default function NewDevices() {
               name="password"
               value={formDevice.password}
               required
-              onChange={handleChange}
               placeholder="******"
             />
           </div>
@@ -122,10 +121,9 @@ export default function NewDevices() {
               className="w-full mb-2"
               type="text"
               required
-              onChange={handleChange}
               value={formDevice.imei}
               maxLength={16}
-              placeholder="0000000000000"
+              placeholder="3548373738397466"
             />
           </div>
         </div>
@@ -141,13 +139,12 @@ export default function NewDevices() {
 
             <InputText
               className="w-full mb-2"
-              type="text"
+              type="number"
               required
               maxLength={16}
               name="serial"
-              onChange={handleChange}
               value={formDevice.serial}
-              placeholder="XXXXXXXX"
+              placeholder="NHDKHPMDB"
             />
           </div>
 
@@ -162,7 +159,6 @@ export default function NewDevices() {
             <InputText
               name="code"
               value={formDevice.code}
-              onChange={handleChange}
               className="w-full mb-2"
               type="text"
               required
@@ -188,7 +184,6 @@ export default function NewDevices() {
               required
               maxLength={16}
               placeholder="952775348"
-              onChange={handleChange}
             />
           </div>
 
@@ -203,7 +198,6 @@ export default function NewDevices() {
             <InputText
               name="model"
               value={formDevice.model}
-              onChange={handleChange}
               className="w-full mb-2"
               type="text"
               required
@@ -226,19 +220,16 @@ export default function NewDevices() {
             className="w-full"
             name="description"
             value={formDevice.description}
-            onChange={handleChange}
             rows={400}
           ></InputTextarea>
         </div>
 
         <div className="flex items-center justify-end mb-10">
           <Button
-            onClick={() => {
-              handleSubmit();
-            }}
+            onClick={goHome}
             className="w-full md:w-fit text-center btn-save-device"
           >
-            Salvar dispositivo
+            Voltar
           </Button>
         </div>
       </div>
