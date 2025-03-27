@@ -1,4 +1,4 @@
-const { ipcMain } = require("electron");
+const { ipcMain, inAppPurchase } = require("electron");
 const makeConnection = require("../db/db.cjs"); // Importa a conexão SQLite
 let db;
 
@@ -31,7 +31,6 @@ const initIPC = () => {
             console.error("Erro ao criar dispositivo:", err);
             reject(err);
           } else {
-            console.log("Dispositivo criado com ID:", this.lastID);
             resolve({ id: this.lastID, ...device });
           }
         }
@@ -52,6 +51,43 @@ const initIPC = () => {
       });
     });
   });
+
+  ipcMain.handle('imei-exists', async (event, imei, id) => {
+    return new Promise((resolve, reject) => {
+      const query = id
+        ? "SELECT * FROM apple_devices WHERE imei = ? AND id != ?"
+        : "SELECT * FROM apple_devices WHERE imei = ?";
+      const params = id ? [imei, id] : [imei];
+
+      db.get(query, params, (err, row) => {
+        if (err) {
+          console.error("Erro ao verificar o IMEI: ", err);
+          reject(err);
+        } else {
+          resolve(!!row); // Retorna true se encontrar outro device com o IMEI
+        }
+      });
+    });
+  });
+
+  ipcMain.handle('serial-exists', async (event, serial, id) => {
+    return new Promise((resolve, reject) => {
+      const query = id
+        ? "SELECT * FROM apple_devices WHERE serial = ? AND id != ?"
+        : "SELECT * FROM apple_devices WHERE serial = ?";
+      const params = id ? [serial, id] : [serial];
+
+      db.get(query, params, (err, row) => {
+        if (err) {
+          console.error("Erro ao verificar o Serial: ", err);
+          reject(err);
+        } else {
+          resolve(!!row); // Retorna true se encontrar outro device com o Serial
+        }
+      });
+    });
+  });
+
 
   // Listar dados de um dispositivo
   ipcMain.handle("get-device", async (event, deviceId) => {
@@ -123,6 +159,19 @@ const initIPC = () => {
     });
   });
 
+  // Login
+  ipcMain.handle("login", async (event, user) => {
+    return new Promise((resolve, reject) => {
+      db.get("SELECT * FROM users WHERE email = ? AND senha = ?", [user.email, user.passWord], (err, row) => {
+        if (err) {
+          console.error("Erro ao fazer o login, ", err);
+          reject(err);
+        } else {
+          resolve(!!row); //Retorna true caso encontrar um usuario com as credencias certas.
+        }
+      })
+    })
+  })
   ipcMain.handle("search-devices", async (event, keyword) => {
     return new Promise((resolve, reject) => {
       const searchQuery = `%${keyword}%`;

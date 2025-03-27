@@ -5,6 +5,7 @@ import "./newDevices.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Device from "../../../../interfaces/device";
+import toast from "react-hot-toast";
 
 export default function NewDevices() {
   const navigate = useNavigate();
@@ -20,23 +21,111 @@ export default function NewDevices() {
     model: "",
   });
 
-  const handleChange = (e: any) => {
+  const [errors, setErrors] = useState<Device>({
+    code: "",
+    email: "",
+    imei: "",
+    model: "",
+    name: "",
+    number: "",
+    password: "",
+    serial: "",
+    description: "",
+  });
+
+  const validateForm = () => {
+    const newErrors: Device = {};
+
+    if (!formDevice.name)
+      newErrors.name = "O nome do proprietário é obrigatório.";
+    if (!formDevice.email)
+      newErrors.email = "O email do proprietário é obrigatório.";
+    if (!formDevice.password) newErrors.password = "A senha é obrigatória.";
+    if (!formDevice.imei) newErrors.imei = "O IMEI é obrigatório.";
+    if (!formDevice.code) newErrors.code = "O código é obrigatório.";
+    if (!formDevice.number) newErrors.number = "O número é obrigatório.";
+    if (!formDevice.serial)
+      newErrors.serial = "O número de série é obrigatório.";
+    if (!formDevice.model) newErrors.model = "O modelo é obrigatório.";
+
+    if (formDevice.imei) {
+      checkImeiExists();
+    }
+
+    if (formDevice.serial) {
+      checkSerialExists();
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const checkImeiExists = async () => {
+    if (!formDevice.imei) return;
+
+    try {
+      const exists = await window.electron.imeiExists(formDevice.imei, null);
+      if (exists) {
+        setErrors((prev) => ({
+          ...prev,
+          imei: "Este IMEI já está cadastrado.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, imei: "" }));
+      }
+    } catch (error) {
+      console.error("Erro ao verificar IMEI:", error);
+    }
+  };
+
+  const checkSerialExists = async () => {
+    if (!formDevice.serial) return;
+
+    try {
+      const exists = await window.electron.serialExists(formDevice.serial, null);
+      if (exists) {
+        setErrors((prev) => ({
+          ...prev,
+          serial: "Este número de série já está cadastrado.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, serial: "" }));
+      }
+    } catch (error) {
+      console.error("Erro ao verificar Serial:", error);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormDevice({ ...formDevice, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const goHome = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   const handleSubmit = async () => {
-    console.log("devices: ", formDevice);
+    if (!validateForm()) return;
 
-    window.electron.createDevices(formDevice).then((response)=>{
-      goHome();
-    }).catch((error: Error)=>{
-      console.error("Erro ao criar um dispositivo: ", error);
-    })    
+
+    console.log(`d3d3`);
+
+    window.electron
+      .createDevices(formDevice)
+      .then(() => {
+        showSuccess();
+        goHome();
+      })
+      .catch((error: Error) => {
+        toast.error("Houve um erro ao adicionar um dispositivo");
+        console.error("Erro ao criar um dispositivo: ", error);
+      });
+  };
+
+  const showSuccess = () => {
+    toast.success("Dispositivo adicionado com sucesso!");
   };
 
   return (
@@ -67,6 +156,9 @@ export default function NewDevices() {
               onChange={handleChange}
               placeholder="Jhon doe"
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -86,6 +178,9 @@ export default function NewDevices() {
               required
               placeholder="example@icloud.com"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
         </div>
 
@@ -94,7 +189,7 @@ export default function NewDevices() {
             <label
               htmlFor="password"
               className="block mb-2 text-sm font-medium text-gray-900"
-            > 
+            >
               Senha
             </label>
 
@@ -107,6 +202,9 @@ export default function NewDevices() {
               onChange={handleChange}
               placeholder="******"
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
           </div>
 
           <div>
@@ -122,11 +220,15 @@ export default function NewDevices() {
               className="w-full mb-2"
               type="text"
               required
+              onBlur={checkImeiExists}
               onChange={handleChange}
               value={formDevice.imei}
               maxLength={16}
               placeholder="0000000000000"
             />
+            {errors.imei && (
+              <p className="text-red-500 text-sm">{errors.imei}</p>
+            )}
           </div>
         </div>
 
@@ -144,11 +246,15 @@ export default function NewDevices() {
               type="text"
               required
               maxLength={16}
+              onBlur={checkSerialExists}
               name="serial"
               onChange={handleChange}
               value={formDevice.serial}
               placeholder="XXXXXXXX"
             />
+            {errors.serial && (
+              <p className="text-red-500 text-sm">{errors.serial}</p>
+            )}
           </div>
 
           <div>
@@ -168,6 +274,9 @@ export default function NewDevices() {
               required
               placeholder="************"
             />
+            {errors.code && (
+              <p className="text-red-500 text-sm">{errors.code}</p>
+            )}
           </div>
         </div>
 
@@ -190,6 +299,9 @@ export default function NewDevices() {
               placeholder="952775348"
               onChange={handleChange}
             />
+            {errors.number && (
+              <p className="text-red-500 text-sm">{errors.number}</p>
+            )}
           </div>
 
           <div>
@@ -210,6 +322,9 @@ export default function NewDevices() {
               maxLength={16}
               placeholder="Iphone 24 pro"
             />
+            {errors.model && (
+              <p className="text-red-500 text-sm">{errors.model}</p>
+            )}
           </div>
         </div>
 

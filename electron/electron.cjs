@@ -19,24 +19,22 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false,
     },
-    // icon: path.join(__dirname, "../logo.ico"),
+    icon: path.join(__dirname, "../logo.ico"),
   });
-  // mainWindow.maximize();
+  mainWindow.maximize();
 
-//   mainWindow.webContents.setWindowOpenHandler((details) => {
-//     shell.openExternal(details.url);
-//     return { action: "deny" };
-//   });
+  mainWindow.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url);
+    return { action: "deny" };
+  });
 
-  mainWindow.loadURL("http://localhost:5173");
-
-//   if (isDev) {
-//     mainWindow.webContents.openDevTools();
-//     mainWindow.loadURL("http://localhost:5173");
-//   } else {
-//     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
-//     addInSheelApps();
-//   }
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+    mainWindow.loadURL("http://localhost:5173");
+  } else {
+    mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
+    // addInSheelApps();
+  }
 
   mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
@@ -48,7 +46,7 @@ function createWindow() {
 
 app.on("ready", () => {
   createWindow();
-  
+
 });
 
 app.on("window-all-closed", function () {

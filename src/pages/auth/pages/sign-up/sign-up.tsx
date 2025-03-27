@@ -1,22 +1,44 @@
 import { InputText } from "primereact/inputtext";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import './sign-up.css';
+import appleLogo from './apple_logo_black.png';
 
 export default function SignUp() {
+  const [email, setEmail] = useState<string>("");
+  const [passWord, setPassWord] = useState<string>("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void=>{
+    e.preventDefault();
+    
+    window.electron.login({email, passWord}).then((response)=>{
+      if(response===true){
+        toast.success("Login feito com sucesso");
+        navigate('/dashboard');
+      }else{
+        toast.error("email ou senha incorrectos! Tente novamente");
+      }
+    }).catch((err: Error)=>{
+      console.error('erro ao realizar o login: ', err);
+    })
+    
+  }
+
   return (
     <main>
-      <form>
-        <section className="bg-gray-50 h-full">
-          <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-            <img
-              src="assets/img/logo_h.png"
-              className="mb-8 block"
-              alt="Logo ..."
-            />
+      <div>
+        {/* <img src={} alt="" /> */}
+        <section className={`bg-gray-50 h-full`}>
+          <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 relative">
+            <img src={appleLogo} alt="Apple logo" className="w-30 absolute left-[48%] opacity-[0.1]" />
             <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
               <div className="p-6 space-y- md:space-y-6 sm:p-8">
                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                   Faça login na sua conta
                 </h1>
-                <form className="space-y-4" action="#">
+                <form className="space-y-4" onSubmit={handleSubmit} >
                   <div>
                     <label
                       htmlFor="email"
@@ -27,8 +49,14 @@ export default function SignUp() {
 
                     <InputText
                       className="w-full mb-2"
-                      type="email"
+                      type="text"
                       required
+                      value={email}
+
+                      onChange={(e)=>{
+                        setEmail(e.target.value);
+                      }}
+
                       placeholder="seuemail@gmail.com"
                     />
 
@@ -55,6 +83,10 @@ export default function SignUp() {
                       name="password"
                       id="password"
                       placeholder="••••••••"
+                      value={passWord}
+                      onChange={(e)=>{
+                        setPassWord(e.target.value);
+                      }}
                       required
                     />
                   </div>
@@ -70,7 +102,7 @@ export default function SignUp() {
             </div>
           </div>
         </section>
-      </form>
+      </div>
     </main>
   );
 }

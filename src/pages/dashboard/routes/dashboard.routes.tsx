@@ -8,11 +8,11 @@ import DeleteDevice from "../pages/devices/components/deleteDevice/deleteDevice"
 export default function DashboardRoutes() {
   return (
     <>
-      <Route path="/" Component={DevicesComponent}></Route>
-      <Route path="/new" Component={NewDevices}></Route>
-      <Route path="/view/:deviceId" Component={ViewDevices}></Route>
-      <Route path="/edit/:deviceId" Component={EditDevices}></Route>
-      <Route path="/delete/:deviceId" Component={DeleteDevice}></Route>
+      <Route path="/dashboard" Component={DevicesComponent}></Route>
+      <Route path="/dashboard/new" Component={NewDevices}></Route>
+      <Route path="/dashboard/view/:deviceId" Component={ViewDevices}></Route>
+      <Route path="/dashboard/edit/:deviceId" Component={EditDevices}></Route>
+      <Route path="/dashboard/delete/:deviceId" Component={DeleteDevice}></Route>
     </>
   );
 }

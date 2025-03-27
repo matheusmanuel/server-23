@@ -41,7 +41,7 @@ function createTablesInDatabase(db) {
     CREATE TABLE IF NOT EXISTS apple_devices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name VARCHAR(100) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
+      email VARCHAR(255) NOT NULL,
       password VARCHAR(255) NOT NULL,
       imei VARCHAR(50) UNIQUE NOT NULL,
       serial VARCHAR(50) UNIQUE NOT NULL,
@@ -63,7 +63,7 @@ function createTablesInDatabase(db) {
 
   db.run(
     `INSERT INTO users (email, senha) VALUES (?, ?)`,
-    ["admin@devicebook.com", "SenhaSegura123"],
+    ["Loja23", "Benguela"],
     (err) => {
       if (err) {
         console.error("Erro ao inserir usuário admin:", err);

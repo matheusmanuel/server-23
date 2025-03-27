@@ -5,6 +5,7 @@ import "./editDevices.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Device from "../../../../interfaces/device";
+import toast from "react-hot-toast";
 
 export default function EditDevices() {
   const { deviceId } = useParams();
@@ -21,29 +22,84 @@ export default function EditDevices() {
     model: "",
   });
 
-  const handleChange = (e: any) => {
+  const [errors, setErrors] = useState<Device>({});
+  const newErrors: Device = {};
+
+  const validateForm = async () => {
+    if (!formDevice.name)
+      newErrors.name = "O nome do proprietário é obrigatório.";
+    if (!formDevice.email)
+      newErrors.email = "O email do proprietário é obrigatório.";
+    if (!formDevice.password) newErrors.password = "A senha é obrigatória.";
+    if (!formDevice.imei) newErrors.imei = "O IMEI é obrigatório.";
+    if (!formDevice.code) newErrors.code = "O código é obrigatório.";
+    if (!formDevice.number) newErrors.number = "O número é obrigatório.";
+    if (!formDevice.serial)
+      newErrors.serial = "O número de série é obrigatório.";
+    if (!formDevice.model) newErrors.model = "O modelo é obrigatório.";
+
+    if (formDevice.imei) {
+      try {
+        const exists = await window.electron.imeiExists(formDevice.imei, formDevice.id as number);
+        if (exists) {
+          newErrors.imei = "Este IMEI já está cadastrado.";
+        } 
+      } catch (error) {
+        console.error("Erro ao verificar IMEI:", error);
+      }
+    }
+
+    if (formDevice.serial) {
+      try {
+        const exists = await window.electron.serialExists(formDevice.serial, formDevice.id as number);
+        if (exists) {
+          newErrors.serial = "Este número de série já está cadastrado.";
+        } 
+      } catch (error) {
+        console.error("Erro ao verificar Serial:", error);
+      }
+    }
+
+    setErrors(newErrors);
+    console.log("novos erros: ", newErrors);
+    return Object.keys(newErrors).length == 0;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormDevice({ ...formDevice, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const goHome = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   const handleSubmit = async () => {
+    const isValid = await validateForm();
+    if (!isValid) return;
+
     window.electron
       .editDevice(formDevice)
-      .then((response) => {
+      .then(() => {
+        showSuccess();
         goHome();
       })
       .catch((error: Error) => {
-        console.error("Erro ao criar um dispositivo: ", error);
+        console.error("Erro ao editar um dispositivo: ", error);
+        toast.error("Houve um erro ao editar um dispositivo");
       });
+  };
+
+  const showSuccess = () => {
+    toast.success("Dispositivo editado com sucesso!");
   };
 
   useEffect(() => {
     window.electron
-      .getDevice(deviceId)
+      .getDevice(deviceId as string)
       .then((response) => {
         setFormDevice(response);
       })
@@ -61,7 +117,9 @@ export default function EditDevices() {
       <h2 className="text-2xl font-semibold">
         Editar Dispositivo: {formDevice.model}
       </h2>
-      <p className="text-sm text-neutral-700">Editar o {formDevice.model} do {formDevice.name}</p>
+      <p className="text-sm text-neutral-700">
+        Editar o {formDevice.model} do {formDevice.name}
+      </p>
 
       <div className="mt-3 space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -82,6 +140,9 @@ export default function EditDevices() {
               onChange={handleChange}
               placeholder="Matheus Manuel"
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -101,6 +162,9 @@ export default function EditDevices() {
               required
               placeholder="matheusmanuel@gmail.com"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
         </div>
 
@@ -122,6 +186,9 @@ export default function EditDevices() {
               onChange={handleChange}
               placeholder="******"
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
           </div>
 
           <div>
@@ -142,6 +209,9 @@ export default function EditDevices() {
               maxLength={16}
               placeholder="3548373738397466"
             />
+            {errors.imei && (
+              <p className="text-red-500 text-sm">{errors.imei}</p>
+            )}
           </div>
         </div>
 
@@ -164,6 +234,9 @@ export default function EditDevices() {
               value={formDevice.serial}
               placeholder="NHDKHPMDB"
             />
+            {errors.serial && (
+              <p className="text-red-500 text-sm">{errors.serial}</p>
+            )}
           </div>
 
           <div>
@@ -183,6 +256,9 @@ export default function EditDevices() {
               required
               placeholder="************"
             />
+            {errors.code && (
+              <p className="text-red-500 text-sm">{errors.code}</p>
+            )}
           </div>
         </div>
 
@@ -205,6 +281,9 @@ export default function EditDevices() {
               placeholder="952775348"
               onChange={handleChange}
             />
+            {errors.number && (
+              <p className="text-red-500 text-sm">{errors.number}</p>
+            )}
           </div>
 
           <div>
@@ -225,6 +304,9 @@ export default function EditDevices() {
               maxLength={16}
               placeholder="Iphone 24 pro"
             />
+            {errors.model && (
+              <p className="text-red-500 text-sm">{errors.model}</p>
+            )}
           </div>
         </div>
 

@@ -15,10 +15,10 @@ contextBridge.exposeInMainWorld('electron', {
   createDevices: (device) => ipcRenderer.invoke('create-device', device),
   getAllDevices: () => ipcRenderer.invoke('get-devices'),
   searchDevices: (keyword) => ipcRenderer.invoke('search-devices', keyword),
-  // insertMantra: (mantra) => ipcRenderer.invoke('insert-mantra', mantra),
   editDevice: (device) => ipcRenderer.invoke('edit-device', device),
   deleteDevice: (id) => ipcRenderer.invoke('delete-device', id),
   getDevice: (deviceId) => ipcRenderer.invoke('get-device', deviceId),
-  // updateVisibleMantra: (mantraData) => ipcRenderer.invoke('update-visible-mantra', mantraData), 
-  // sendNotification: (title, body) => ipcRenderer.send('notify', { title, body })
+  imeiExists: (imei, id) => ipcRenderer.invoke('imei-exists', imei, id),
+  serialExists: (serial, id) => ipcRenderer.invoke('serial-exists', serial, id),
+  login: (user) => ipcRenderer.invoke('login', user)
 });

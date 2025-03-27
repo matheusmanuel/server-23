@@ -15,7 +15,7 @@ export default function DevicesComponent() {
   useEffect(() => {
     window.electron
       .getAllDevices()
-      .then((response: any) => {
+      .then((response: Device[]) => {
         setDevices(response);
       })
       .catch((error: Error) => {
@@ -23,9 +23,19 @@ export default function DevicesComponent() {
       });
   }, []);
 
-  function actionTemplate(rowData: any, column) {
-    console.log("column", column);
-    console.log("rowData", rowData);
+  type RowDataType = {
+    id: string | number; // Defina o tipo correto do ID, dependendo do que você usa
+    // Adicione outras propriedades conforme necessário
+  };
+  
+  // type ColumnType = {
+  //   field: string;
+  //   header: string;
+  //   // Adicione outras propriedades, dependendo da estrutura da sua coluna
+  // };
+
+  // column: ColumnType
+  function actionTemplate(rowData: RowDataType) {
     return (
       <div className="gap-2 flex">
         <Button
@@ -33,7 +43,7 @@ export default function DevicesComponent() {
           icon="pi pi-pencil"
           severity="warning"
           onClick={() => {
-            navigate(`/edit/${rowData.id}`);
+            navigate(`/dashboard/edit/${rowData.id}`);
           }}
         />
         <Button
@@ -41,7 +51,7 @@ export default function DevicesComponent() {
           icon="pi pi-trash"
           severity="danger"
           onClick={() => {
-            navigate(`/delete/${rowData.id}`);
+            navigate(`/dashboard/delete/${rowData.id}`);
           }}
         />
         <Button
@@ -49,7 +59,7 @@ export default function DevicesComponent() {
           icon="pi pi-eye"
           severity="secondary"
           onClick={() => {
-            navigate(`/view/${rowData.id}`);
+            navigate(`/dashboard/view/${rowData.id}`);
           }}
         />
       </div>
@@ -59,7 +69,7 @@ export default function DevicesComponent() {
   useEffect(() => {
     window.electron
       .searchDevices(keyword)
-      .then((response: any) => {
+      .then((response: Device[]) => {
         setDevices(response);
       })
       .catch((error: Error) => {
@@ -79,7 +89,7 @@ export default function DevicesComponent() {
           </div>
           <Button
             onClick={() => {
-              navigate("/new");
+              navigate("/dashboard/new");
             }}
             label="Adicionar Dispositivo"
             icon="pi pi-plus"
@@ -87,7 +97,7 @@ export default function DevicesComponent() {
           />
         </div>
         <div className="flex justify-between mb-4">
-          <span className="p-input-icon-left relative">
+          <span className="p-input-icon-left relative w-full">
             <div className="absolute top-[50%] -translate-y-[50%] left-[15px]">
               <i className="pi pi-search" />
             </div>
@@ -95,14 +105,14 @@ export default function DevicesComponent() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="Buscar..."
-              className="search-input"
+              className="search-input w-full"
             />
           </span>
         </div>
         <DataTable
           value={devices}
           paginator
-          rows={5}
+          rows={10}
           className="p-datatable-gridlines"
         >
           <Column field="name" header="Nome" sortable></Column>
@@ -114,7 +124,7 @@ export default function DevicesComponent() {
           <Column field="number" header="Número" sortable></Column>
           <Column field="model" header="Modelo" sortable></Column>
           {/* <Column field="descricao" header="Descrição" sortable></Column> */}
-          <Column body={actionTemplate.bind(this)} header="Acções" />
+          <Column body={actionTemplate} header="Acções" />
         </DataTable>
       </div>
     </>

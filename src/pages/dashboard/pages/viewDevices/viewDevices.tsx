@@ -23,13 +23,13 @@ export default function ViewDevices() {
   });
 
   const goHome = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   useEffect(() => {
     window.electron
-      .getDevice(deviceId)
-      .then((response: any) => {
+      .getDevice(deviceId as string)
+      .then((response: Device) => {
         setFormDevice(response);
         console.log(response);
       })
