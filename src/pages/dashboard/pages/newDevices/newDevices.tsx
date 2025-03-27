@@ -220,7 +220,7 @@ export default function NewDevices() {
               className="w-full mb-2"
               type="text"
               required
-              onBlur={checkImeiExists}
+              // onBlur={checkImeiExists}
               onChange={handleChange}
               value={formDevice.imei}
               maxLength={16}
@@ -246,7 +246,7 @@ export default function NewDevices() {
               type="text"
               required
               maxLength={16}
-              onBlur={checkSerialExists}
+              // onBlur={checkSerialExists}
               name="serial"
               onChange={handleChange}
               value={formDevice.serial}

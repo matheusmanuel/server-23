@@ -3,6 +3,7 @@ const { app, BrowserWindow, Tray, Menu, session  } = require("electron");
 const path = require("path");
 const isDev = process.env.IS_DEV == "true" ? true : false;
 const { initIPC, db } = require("./ipcHandlers.cjs");
+const { dialog } = require("electron");
 
 let mainWindow;
 let tray;
@@ -37,9 +38,19 @@ function createWindow() {
   }
 
   mainWindow.on("close", (event) => {
-    if (!app.isQuitting) {
+    const choice = dialog.showMessageBoxSync(mainWindow, {
+      type: "question",
+      buttons: ["Sim", "Não"],
+      defaultId: 1,
+      title: "Confirmação",
+      message: "Tem certeza que deseja sair?",
+    });
+  
+    if (choice === 1) {
       event.preventDefault();
-      mainWindow.hide();
+    } else {
+      if (db) db.close();
+      app.quit();
     }
   });
 }
