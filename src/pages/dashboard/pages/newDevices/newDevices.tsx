@@ -48,11 +48,11 @@ export default function NewDevices() {
       newErrors.serial = "O número de série é obrigatório.";
     if (!formDevice.model) newErrors.model = "O modelo é obrigatório.";
 
-    if (formDevice.imei) {
+    if (formDevice.imei && formDevice.imei.toLowerCase() != "null") {
       checkImeiExists();
     }
 
-    if (formDevice.serial) {
+    if (formDevice.serial && formDevice.serial.toLowerCase() != "null") {
       checkSerialExists();
     }
 

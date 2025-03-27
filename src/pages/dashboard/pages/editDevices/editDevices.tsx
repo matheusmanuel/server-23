@@ -10,6 +10,13 @@ import toast from "react-hot-toast";
 export default function EditDevices() {
   const { deviceId } = useParams();
   const navigate = useNavigate();
+
+  const [initialData, setInitialData] = useState<Device>({});
+
+  const handleReverter = () => {
+    setFormDevice(initialData);
+  };
+
   const [formDevice, setFormDevice] = useState<Device>({
     name: "",
     email: "",
@@ -38,30 +45,35 @@ export default function EditDevices() {
       newErrors.serial = "O número de série é obrigatório.";
     if (!formDevice.model) newErrors.model = "O modelo é obrigatório.";
 
-    if (formDevice.imei) {
+    if (formDevice.imei && formDevice.imei.toLowerCase() != "null") {
       try {
-        const exists = await window.electron.imeiExists(formDevice.imei, formDevice.id as number);
+        const exists = await window.electron.imeiExists(
+          formDevice.imei,
+          formDevice.id as number
+        );
         if (exists) {
           newErrors.imei = "Este IMEI já está cadastrado.";
-        } 
+        }
       } catch (error) {
         console.error("Erro ao verificar IMEI:", error);
       }
     }
 
-    if (formDevice.serial) {
+    if (formDevice.serial && formDevice.serial.toLowerCase() != "null") {
       try {
-        const exists = await window.electron.serialExists(formDevice.serial, formDevice.id as number);
+        const exists = await window.electron.serialExists(
+          formDevice.serial,
+          formDevice.id as number
+        );
         if (exists) {
           newErrors.serial = "Este número de série já está cadastrado.";
-        } 
+        }
       } catch (error) {
         console.error("Erro ao verificar Serial:", error);
       }
     }
 
     setErrors(newErrors);
-    console.log("novos erros: ", newErrors);
     return Object.keys(newErrors).length == 0;
   };
 
@@ -102,6 +114,7 @@ export default function EditDevices() {
       .getDevice(deviceId as string)
       .then((response) => {
         setFormDevice(response);
+        setInitialData(response);
       })
       .catch((error: Error) => {
         console.error("Erro ao buscar um dispositivo: ", error);
@@ -329,6 +342,9 @@ export default function EditDevices() {
         </div>
 
         <div className="flex items-center justify-end mb-10">
+          <div className="mr-4" onClick={handleReverter}>
+            <Button severity="secondary">Reverter alerações</Button>
+          </div>
           <Button
             onClick={() => {
               handleSubmit();
